@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const config = require("./config");
 
+mongoose.Promise = global.Promise;
+
 const run = async () => {
   try {
     mongoose.connect(

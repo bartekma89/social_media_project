@@ -1,22 +1,24 @@
-const User = require("../model/user");
-const isEmpty = require("lodash/isEmpty");
+const express = require("express");
+const router = express.Router();
+const User = require("../../model/user");
+const config = require("../../config");
+
 const jwt = require("jsonwebtoken");
-const config = require("../config");
+const passport = require("passport");
 
-function tokenUser(user) {
-  const timestamp = new Date().getTime();
-  return jwt.sign({ id: user._id, iat: timestamp }, config.secretKey.key);
-}
+const tokenUser = require("../../helpers").tokenUser;
 
-exports.signup = async (req, res, next) => {
-  const { email, password } = req.body;
+/* POST Register */
+
+router.post("/", async (req, res, next) => {
+  const { name, email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
 
-    if (isEmpty(email) || isEmpty(password)) {
+    if (!name || !email || !password) {
       return res.status(422).json({
-        error: "You must provide emial and password"
+        error: "You must provide name and emial and password"
       });
     }
 
@@ -28,6 +30,7 @@ exports.signup = async (req, res, next) => {
 
     try {
       const newUser = new User({
+        name,
         email,
         password
       });
@@ -43,10 +46,6 @@ exports.signup = async (req, res, next) => {
     res.status(500).json({ error: err });
     return next(err);
   }
-};
+});
 
-exports.signin = (req, res, next) => {
-  res.json({
-    token: tokenUser(req.user)
-  });
-};
+module.exports = router;

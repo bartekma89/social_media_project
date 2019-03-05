@@ -4,7 +4,6 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const LocalStrategy = require("passport-local");
 const config = require("../config");
 const User = require("../model/user");
-const isEmpty = require("lodash").isEmpty;
 
 const JwtOptions = {
   jwtFromRequest: ExtractJwt.fromHeader("authorization"),
@@ -21,8 +20,8 @@ const localLogin = new LocalStrategy(
     try {
       const user = await User.findOne({ email }).exec();
 
-      if (isEmpty(user)) {
-        return done(null, false);
+      if (!user) {
+        return done(null, false, { message: "Incorrect email or password" });
       }
 
       user.comparePassword(password, (err, isMatch) => {
@@ -31,10 +30,10 @@ const localLogin = new LocalStrategy(
         }
 
         if (!isMatch) {
-          return done(null, false);
+          return done(null, false, { message: "Incorrect email or password" });
         }
 
-        return done(null, user);
+        return done(null, user, { message: "Logged is successfully" });
       });
     } catch (err) {
       return done(err, false);
