@@ -5,19 +5,18 @@ const http = require("http");
 const app = express();
 const passport = require("passport");
 
-const index = require("./routes/api/index");
 const register = require("./routes/api/register");
 const user = require("./routes/api/user");
-const login = require("./routes/api/auth");
+const login = require("./routes/api/login");
 
 const db = require("./db");
-const passportStratedy = require("./services/passport");
+const passportStrategy = require("./services/passport");
 
 app.use(morgan("combined"));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(passport.initialize());
 
-app.use("/index", passport.authenticate("jwt", { session: false }), index);
 app.use("/join", register);
 app.use("/user", passport.authenticate("jwt", { session: false }), user);
 app.use("/login", login);

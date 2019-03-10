@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const secretKey = require("../config").secretKey.key;
 
 const Schema = mongoose.Schema;
 
-var userSchema = new Schema({
+var UserSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -24,7 +26,7 @@ var userSchema = new Schema({
   }
 });
 
-userSchema.pre("save", async function(next) {
+UserSchema.pre("save", async function(next) {
   try {
     const user = this;
 
@@ -38,7 +40,7 @@ userSchema.pre("save", async function(next) {
   }
 });
 
-userSchema.methods.comparePassword = async function(password, cb) {
+UserSchema.methods.comparePassword = async function(password, cb) {
   try {
     const isMatch = await bcrypt.compare(password, this.password);
 
@@ -48,6 +50,30 @@ userSchema.methods.comparePassword = async function(password, cb) {
   }
 };
 
-const UserClass = mongoose.model("user", userSchema);
+UserSchema.methods.generateJWT = function() {
+  const today = new Date();
+  const expirationDate = new Date(today);
+  expirationDate.setDate(today.getDate() + 60);
+
+  return jwt.sign(
+    {
+      email: this.email,
+      id: this._id,
+      iat: today.getTime(),
+      exp: parseInt(expirationDate.getTime() / 1000, 10)
+    },
+    secretKey
+  );
+};
+
+UserSchema.methods.toAuthJSON = function() {
+  return {
+    _id: this._id,
+    email: this.email,
+    token: this.generateJWT()
+  };
+};
+
+const UserClass = mongoose.model("User", UserSchema);
 
 module.exports = UserClass;

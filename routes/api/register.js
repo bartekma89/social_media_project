@@ -1,30 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../../model/user");
-const config = require("../../config");
+const User = require("../../models/User");
 
-const jwt = require("jsonwebtoken");
-const passport = require("passport");
-
-const tokenUser = require("../../helpers").tokenUser;
+const validateRegisterInput = require("../../validation/register");
 
 /* POST Register */
 
 router.post("/", async (req, res, next) => {
   const { name, email, password } = req.body;
 
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   try {
     const user = await User.findOne({ email });
 
-    if (!name || !email || !password) {
-      return res.status(422).json({
-        error: "You must provide name and emial and password"
-      });
-    }
-
     if (user) {
+      errors.name = "The user exist";
       return res.status(422).json({
-        error: "The user exist"
+        errors
       });
     }
 
@@ -37,7 +34,7 @@ router.post("/", async (req, res, next) => {
 
       await newUser.save();
 
-      return res.status(200).json({ success: true, token: tokenUser(newUser) });
+      return res.status(200).json({ user: newUser.toAuthJSON() });
     } catch (err) {
       res.status(500).json({ error: err });
       return next(err);

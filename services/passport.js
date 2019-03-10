@@ -2,8 +2,9 @@ const passport = require("passport");
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const LocalStrategy = require("passport-local");
+const mongoose = require("mongoose");
+const User = mongoose.model("User");
 const config = require("../config");
-const User = require("../model/user");
 
 const JwtOptions = {
   jwtFromRequest: ExtractJwt.fromHeader("authorization"),
@@ -33,7 +34,7 @@ const localLogin = new LocalStrategy(
           return done(null, false, { message: "Incorrect email or password" });
         }
 
-        return done(null, user, { message: "Logged is successfully" });
+        return done(null, user);
       });
     } catch (err) {
       return done(err, false);
