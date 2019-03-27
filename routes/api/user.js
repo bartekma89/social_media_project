@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../../models/User");
 
+// @route   GET api/users/all
+// @desc    Return all users
+// @access  Private
+
 router.get("/all", async (req, res, next) => {
   try {
     const users = await User.find({}).exec();
@@ -27,30 +31,41 @@ router.get("/all", async (req, res, next) => {
   }
 });
 
-router.get("/profile/:id", async (req, res, next) => {
-  const id = req.params.id;
+// @route   GET api/users/:current
+// @desc    Return current api
+// @access  Private
 
-  try {
-    const user = await User.findById(id).exec();
+router.get("/current", async (req, res, next) => {
+  return res.status(200).json({
+    id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    date: req.user.date
+  });
 
-    if (!user) {
-      return res.status(400).json({
-        error: "User does not exist"
-      });
-    }
+  // const id = req.paams.id;
 
-    return res.status(200).json({
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      date: user.date
-    });
-  } catch (err) {
-    res.status(500).json({
-      error: err
-    });
-    return next(err);
-  }
+  // try {
+  //   const user = await User.findById(id).exec();
+
+  //   if (!user) {
+  //     return res.status(400).json({
+  //       error: "User does not exist"
+  //     });
+  //   }
+
+  //   return res.status(200).json({
+  //     id: user._id,
+  //     name: user.name,
+  //     email: user.email,
+  //     date: user.date
+  //   });
+  // } catch (err) {
+  //   res.status(500).json({
+  //     error: err
+  //   });
+  //   return next(err);
+  // }
 });
 
 module.exports = router;

@@ -4,7 +4,9 @@ const User = require("../../models/User");
 
 const validateRegisterInput = require("../../validation/register");
 
-/* POST Register */
+// @route   POST api/register
+// @desc    Register user
+// @access  Public
 
 router.post("/", async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -19,7 +21,7 @@ router.post("/", async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      errors.name = "The user exist";
+      errors.email = "The user exist";
       return res.status(422).json({
         errors
       });

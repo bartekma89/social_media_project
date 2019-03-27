@@ -2,8 +2,11 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const validateLoginInput = require("../../validation/login");
+const { isEmpty } = require("lodash");
 
-/* POST Login */
+// @route   POST api/login
+// @desc    Login User / Returning JWT Token
+// @access  Public
 
 router.post("/", (req, res, next) => {
   const { errors, isValid } = validateLoginInput(req.body);
@@ -28,7 +31,7 @@ router.post("/", (req, res, next) => {
         });
       }
 
-      errors.email = info ? info.message : "Login failed";
+      errors.email = !isEmpty(info) ? info.message : "Login failed";
       return res.status(400).json({ errors });
     }
   )(req, res, next);

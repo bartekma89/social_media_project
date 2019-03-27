@@ -74,6 +74,4 @@ UserSchema.methods.toAuthJSON = function() {
   };
 };
 
-const UserClass = mongoose.model("User", UserSchema);
-
-module.exports = UserClass;
+module.exports = UserClass = mongoose.model("users", UserSchema);
