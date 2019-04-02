@@ -4,11 +4,11 @@ const User = require("../../models/User");
 
 const validateRegisterInput = require("../../validation/register");
 
-// @route   POST api/register
+// @route   POST api/join (register)
 // @desc    Register user
 // @access  Public
 
-router.post("/", async (req, res, next) => {
+router.post("/", async (req, res) => {
   const { name, email, password } = req.body;
 
   const { errors, isValid } = validateRegisterInput(req.body);
@@ -18,7 +18,7 @@ router.post("/", async (req, res, next) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).exec();
 
     if (user) {
       errors.email = "The user exist";
@@ -27,23 +27,17 @@ router.post("/", async (req, res, next) => {
       });
     }
 
-    try {
-      const newUser = new User({
-        name,
-        email,
-        password
-      });
+    const newUser = new User({
+      name,
+      email,
+      password
+    });
 
-      await newUser.save();
+    await newUser.save();
 
-      return res.status(200).json({ user: newUser.toAuthJSON() });
-    } catch (err) {
-      res.status(500).json({ error: err });
-      return next(err);
-    }
+    return res.status(200).json({ user: newUser.toAuthJSON() });
   } catch (err) {
-    res.status(500).json({ error: err });
-    return next(err);
+    return res.status(500).json({ error: err });
   }
 });
 

@@ -9,6 +9,7 @@ const register = require("./routes/api/register");
 const user = require("./routes/api/user");
 const login = require("./routes/api/login");
 const profile = require("./routes/api/profile");
+const posts = require("./routes/api/posts");
 
 const db = require("./db");
 const passportStrategy = require("./services/passport");
@@ -19,9 +20,10 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 app.use("/join", register);
-app.use("/users", passport.authenticate("jwt", { session: false }), user);
 app.use("/login", login);
-app.use("/profile", passport.authenticate("jwt", { session: false }), profile);
+app.use("/profile", profile);
+app.use("/users", user);
+app.use("/posts", posts);
 
 const port = process.env.PORT || 8080;
 const server = http.createServer(app);

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const secretKey = require("../config").secretKey.key;
+const { secretKey } = require("../config");
 
 const Schema = mongoose.Schema;
 
@@ -62,7 +62,7 @@ UserSchema.methods.generateJWT = function() {
       iat: today.getTime(),
       exp: parseInt(expirationDate.getTime() / 1000, 10)
     },
-    secretKey
+    secretKey.key
   );
 };
 

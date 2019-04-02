@@ -26,6 +26,7 @@ router.post("/", (req, res, next) => {
       if (passportUser) {
         const user = passportUser;
         user.token = passportUser.generateJWT();
+
         return res.status(200).json({
           user: user.toAuthJSON()
         });
