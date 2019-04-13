@@ -10,7 +10,7 @@ const validationEducationInput = require("../../validation/education");
 
 const requiredAuth = passport.authenticate("jwt", { session: false });
 
-// @route   GET api/profile
+// @route   GET /profile/
 // @desc    Get current users profile
 // @access  Private
 
@@ -34,7 +34,7 @@ router.get("/", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   POST api/profile
+// @route   POST /profile
 // @desc    Create or edit user profile
 // @access  Private
 
@@ -122,7 +122,7 @@ router.post("/", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   GET api/profile/user/all
+// @route   GET /profile/user/all
 // @desc    Get profile by id
 // @access  Public
 
@@ -145,7 +145,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// @route   POST api/profile/education
+// @route   POST /profile/education
 // @desc    Add education to profil
 // @access  Private
 
@@ -184,7 +184,7 @@ router.post("/education", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   POST api/profile/experience
+// @route   POST /profile/experience
 // @desc    Add expirience to profil
 // @access  Private
 
@@ -223,7 +223,7 @@ router.post("/experience", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   GET api/profile/handle/:handle
+// @route   GET /profile/handle/:handle
 // @desc    Get profile by handle
 // @access  Public
 
@@ -247,7 +247,7 @@ router.get("/handle/:handle", async (req, res) => {
   }
 });
 
-// @route   GET api/profile/user/:id
+// @route   GET /profile/user/:id
 // @desc    Get profile by id
 // @access  Public
 
@@ -270,7 +270,7 @@ router.get("/user/:id", async (req, res) => {
   }
 });
 
-// @route   DELETE api/profile/user
+// @route   DELETE /profile/user
 // @desc    Delete current user
 // @access  Private
 
@@ -284,7 +284,7 @@ router.delete("/user", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   DELETE api/profile/experience/:exp_id
+// @route   DELETE /profile/experience/:exp_id
 // @desc    Add experience to profil
 // @access  Private
 
@@ -306,7 +306,7 @@ router.delete("/experience/:exp_id", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   DELETE api/profile/education/:edu_id
+// @route   DELETE /profile/education/:edu_id
 // @desc    Add education to profil
 // @access  Private
 
@@ -328,7 +328,7 @@ router.delete("/education/:edu_id", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   DELETE api/profile/
+// @route   DELETE /profile/
 // @desc    Delete profile and user
 // @access  Private
 

@@ -8,7 +8,7 @@ const Profile = require("../../models/Profile");
 
 const requiredAuth = passport.authenticate("jwt", { session: false });
 
-// @route   GET api/posts
+// @route   GET /posts
 // @desc    Show all posts
 // @access  Public
 
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// @route   GET api/posts/:id
+// @route   GET /posts/:id
 // @desc    Get post by ID
 // @access  Public
 
@@ -49,7 +49,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// @route   DELETE api/posts/:id
+// @route   DELETE /posts/:id
 // @desc    Delete post by ID
 // @access  Private
 
@@ -75,7 +75,7 @@ router.delete("/:id", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   POST api/posts
+// @route   POST /posts
 // @desc    Create post
 // @access  Private
 
@@ -99,7 +99,7 @@ router.post("/", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   POST api/posts/like/:id
+// @route   POST /posts/like/:id
 // @desc    Like post by uniqe user
 // @access  Private
 
@@ -126,7 +126,7 @@ router.post("/like/:id", requiredAuth, async (req, res) => {
   }
 });
 
-// @route   POST api/posts/dislike/:id
+// @route   POST /posts/dislike/:id
 // @desc    Dislike post by uniqe user
 // @access  Private
 
@@ -143,21 +143,83 @@ router.post("/dislike/:id", requiredAuth, async (req, res) => {
       });
     }
 
-    console.log("post", post);
-
     const removeIndex = post.likes
       .map(like => like.user.toString())
       .indexOf(req.user.id);
 
-    console.log("removeIndex", removeIndex);
-
     post.likes.splice(removeIndex, 1);
+
     await post.save();
 
     return res.status(200).json(post);
   } catch (err) {
     console.log("err");
     return res.status(500).json(err);
+  }
+});
+
+// @route   POST /posts/comment/:id
+// @desc    Create comment
+// @access  Private
+
+router.post("/comment/:id", requiredAuth, async (req, res) => {
+  const { errors, isValid } = validatePostInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  try {
+    const post = await Post.findById(req.params.id).exec();
+
+    const newComment = {
+      text: req.body.text,
+      name: req.body.name,
+      user: req.user.id
+    };
+
+    post.comments.unshift(newComment);
+
+    await post.save();
+
+    return res.status(200).json(post);
+  } catch (err) {
+    return res.status(404).json({
+      nopost: "Comment does not exist"
+    });
+  }
+});
+
+// @route   DELETE /posts/comment/:id/:comment_id
+// @desc    Delete comment
+// @access  Private
+
+router.delete("/comment/:id/:comment_id", requiredAuth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+
+    if (
+      filter(
+        post.comments,
+        comment => comment._id.toString() === req.params.comment_id
+      ).length === 0
+    ) {
+      return res.status(404).json({ nocomment: "Comment does not exist" });
+    }
+
+    const removeIndex = post.comments
+      .map(comment => comment._id.toString())
+      .indexOf(req.params.comment_id);
+
+    post.comments.splice(removeIndex, 1);
+
+    await post.save();
+
+    return res.status(200).json(post);
+  } catch (err) {
+    return res.status(404).json({
+      nopost: "Post does not exist"
+    });
   }
 });
 

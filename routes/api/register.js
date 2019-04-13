@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../../models/User");
+const { isNil } = require("lodash");
 
 const validateRegisterInput = require("../../validation/register");
 
-// @route   POST api/join (register)
+// @route   POST /join (register)
 // @desc    Register user
 // @access  Public
 
 router.post("/", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   const { errors, isValid } = validateRegisterInput(req.body);
 
@@ -19,16 +20,18 @@ router.post("/", async (req, res) => {
 
   try {
     const user = await User.findOne({ email }).exec();
+    const userName = await User.findOne({ username }).exec();
 
-    if (user) {
-      errors.email = "The user exist";
-      return res.status(422).json({
-        errors
-      });
+    if (!isNil(user)) {
+      errors.email = "The user exists";
+      if (!isNil(userName)) {
+        errors.username = "The username exists";
+      }
+      return res.status(422).json(errors);
     }
 
     const newUser = new User({
-      name,
+      username,
       email,
       password
     });
