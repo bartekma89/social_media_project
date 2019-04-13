@@ -5,10 +5,12 @@ const validateRegisterInput = values => {
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   const passwordRegex = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})/;
 
-  if (isEmpty(values.name)) {
-    errors.name = "Name field is required";
-  } else if (values.name.length <= 2 || values.name.length > 30) {
-    errors.name = "Name must be between 2 and 30 characters";
+  console.log("values", values);
+
+  if (isEmpty(values.username)) {
+    errors.username = "Username field is required";
+  } else if (values.username.length <= 2 || values.username.length > 30) {
+    errors.username = "Username must be between 2 and 30 characters";
   }
 
   if (isEmpty(values.email)) {
@@ -26,13 +28,15 @@ const validateRegisterInput = values => {
     errors.password = "Password must be at least 6 characters";
   }
 
-  if (isEmpty(values.passwordRepeat)) {
-    errors.passwordRepeat = "Repeat password filed is required";
+  if (isEmpty(values.passwordConfirmation)) {
+    errors.passwordConfirmation = "Confirmation password filed is required";
   }
 
-  if (values.password !== values.passwordRepeat) {
-    errors.passwordRepeat = "Password must match";
+  if (values.password !== values.passwordConfirmation) {
+    errors.passwordConfirmation = "Passwords must match";
   }
+
+  console.log("errors", errors);
 
   return {
     errors,
