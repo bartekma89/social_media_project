@@ -36,6 +36,9 @@ router.post("/", async (req, res) => {
       password
     });
 
+    console.log("aa");
+    console.log(newUser);
+
     await newUser.save();
 
     return res.status(200).json({ user: newUser.toAuthJSON() });

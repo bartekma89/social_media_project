@@ -6,7 +6,7 @@ const { secretKey } = require("../config");
 const Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-  name: {
+  username: {
     type: String,
     required: true
   },

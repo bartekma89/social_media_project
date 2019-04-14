@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const http = require("http");
 const app = express();
 const passport = require("passport");
+const cors = require("cors");
 
 const register = require("./routes/api/register");
 const user = require("./routes/api/user");
@@ -18,6 +19,7 @@ app.use(morgan("combined"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(passport.initialize());
+app.use(cors());
 
 app.use("/join", register);
 app.use("/login", login);
