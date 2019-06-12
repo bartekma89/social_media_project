@@ -11,6 +11,7 @@ const user = require("./routes/api/user");
 const login = require("./routes/api/login");
 const profile = require("./routes/api/profile");
 const posts = require("./routes/api/posts");
+const auth = require("./routes/api/auth");
 
 const db = require("./db");
 const passportStrategy = require("./services/passport");
@@ -26,6 +27,7 @@ app.use("/login", login);
 app.use("/profile", profile);
 app.use("/users", user);
 app.use("/posts", posts);
+app.use("/auth", auth);
 
 const port = process.env.PORT || 8080;
 const server = http.createServer(app);
