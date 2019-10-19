@@ -3,24 +3,21 @@ const router = express.Router();
 const passport = require("passport");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
-const { isEmpty } = require("lodash");
+const { isEmpty, isArray } = require("lodash");
 const validationProfileInput = require("../../validation/profile");
 const validationExperianceInput = require("../../validation/experience");
 const validationEducationInput = require("../../validation/education");
 
 const requiredAuth = passport.authenticate("jwt", { session: false });
 
-// @route   GET /profile/
+// @route   GET /profile/me
 // @desc    Get current users profile
 // @access  Private
 
-router.get("/", requiredAuth, async (req, res) => {
+router.get("/me", requiredAuth, async (req, res) => {
   const errors = {};
 
-  const profile = await Profile.findOne({ user: req.user.id }).populate(
-    "user",
-    ["name", "email"]
-  );
+  const profile = await Profile.findOne({ user: req.user.id });
 
   try {
     if (!profile) {
@@ -30,7 +27,7 @@ router.get("/", requiredAuth, async (req, res) => {
 
     return res.status(200).json(profile);
   } catch (err) {
-    return res.status(404).json(err);
+    return res.status(500).json({ err });
   }
 });
 
@@ -49,29 +46,42 @@ router.post("/", requiredAuth, async (req, res) => {
 
   profileFields.user = req.user.id;
 
-  if (!isEmpty(req.body.handle)) {
-    profileFields.handle = req.body.handle;
+  const {
+    handle,
+    company,
+    website,
+    location,
+    status,
+    skills,
+    bio,
+    githubusername
+  } = req.body;
+
+  if (!isEmpty(handle)) {
+    profileFields.handle = handle;
   }
-  if (!isEmpty(req.body.company)) {
-    profileFields.company = req.body.company;
+  if (!isEmpty(company)) {
+    profileFields.company = company;
   }
-  if (!isEmpty(req.body.website)) {
-    profileFields.website = req.body.website;
+  if (!isEmpty(website)) {
+    profileFields.website = website;
   }
-  if (!isEmpty(req.body.location)) {
-    profileFields.location = req.body.location;
+  if (!isEmpty(location)) {
+    profileFields.location = location;
   }
-  if (!isEmpty(req.body.status)) {
-    profileFields.status = req.body.status;
+  if (!isEmpty(status)) {
+    profileFields.status = status;
   }
-  if (!isEmpty(req.body.skills)) {
-    profileFields.skills = req.body.skills.split(",");
+  if (!isEmpty(skills)) {
+    profileFields.skills = isArray(skills)
+      ? skills.join().split(",")
+      : skills.split(",");
   }
-  if (!isEmpty(req.body.bio)) {
-    profileFields.bio = req.body.bio;
+  if (!isEmpty(bio)) {
+    profileFields.bio = bio;
   }
-  if (!isEmpty(req.body.githubusername)) {
-    profileFields.githubusername = req.body.githubusername;
+  if (!isEmpty(githubusername)) {
+    profileFields.githubusername = githubusername;
   }
 
   profileFields.social = {};
@@ -97,7 +107,7 @@ router.post("/", requiredAuth, async (req, res) => {
     if (profile) {
       const profileUpdated = await Profile.findOneAndUpdate(
         { user: req.user.id },
-        { $set: profileFields },
+        profileFields,
         { new: true }
       );
 
@@ -118,7 +128,7 @@ router.post("/", requiredAuth, async (req, res) => {
       return res.status(200).json(newProfile);
     }
   } catch (err) {
-    return res.status(500).json({ error: err });
+    return res.status(500).json({ err });
   }
 });
 

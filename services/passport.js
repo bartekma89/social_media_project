@@ -6,7 +6,7 @@ const User = require("../models/User");
 const { secretKey } = require("../config");
 
 const JwtOptions = {
-  jwtFromRequest: ExtractJwt.fromHeader("authorization"),
+  jwtFromRequest: ExtractJwt.fromHeader("x-auth-token"),
   secretOrKey: secretKey.key
 };
 
