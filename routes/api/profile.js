@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const request = require('request');
+const { isEmpty, isArray, isNil, pick, map } = require('lodash');
+
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
-const { isEmpty, isArray, isNil } = require('lodash');
 const validationProfileInput = require('../../validation/profile');
 const validationExperianceInput = require('../../validation/experience');
 const validationEducationInput = require('../../validation/education');
+const { github } = require('../../config');
 
 const requiredAuth = passport.authenticate('jwt', { session: false });
 
@@ -132,26 +135,24 @@ router.post('/', requiredAuth, async (req, res) => {
   }
 });
 
-// @route   GET /profile/user/all
+// @route   GET /profile/all
 // @desc    Get profile by id
 // @access  Public
 
 router.get('/all', async (req, res) => {
-  const errors = {};
   try {
     const profiles = await Profile.find({})
-      .populate('user', ['email', 'name'])
+      .populate('user', ['username', 'email', 'avatar'])
       .exec();
 
     if (isEmpty(profiles)) {
-      errors.profile = 'Profiles do not exist';
-      return res.status(404).json(errors);
+      const error = 'No profiles found...';
+      return res.status(404).send(error);
     }
 
     return res.status(200).json(profiles);
   } catch (err) {
-    errors.profile = 'Profiles do not exist';
-    return res.status(404).json(err);
+    return res.status(500).send('Server error');
   }
 });
 
@@ -243,7 +244,7 @@ router.get('/handle/:handle', async (req, res) => {
     const profile = await Profile.findOne({
       handle: req.params.handle
     })
-      .populate('user', ['name', 'email'])
+      .populate('user', ['username', 'email', 'avatar'])
       .exec();
 
     if (!profile) {
@@ -265,7 +266,7 @@ router.get('/user/:id', async (req, res) => {
   let errors = {};
   try {
     const profile = await Profile.findOne({ user: req.params.id })
-      .populate('user', ['email', 'name'])
+      .populate('user', ['username', 'email', 'avatar'])
       .exec();
 
     if (!profile) {
@@ -277,6 +278,41 @@ router.get('/user/:id', async (req, res) => {
   } catch (err) {
     errors.profile = 'Profile this user does not exist';
     return res.status(404).json(errors);
+  }
+});
+
+router.get('/github/:username', async (req, res) => {
+  let errors = {};
+  try {
+    request(
+      {
+        uri: `https://api.github.com/users/${req.params.username}/repos?sort=updated&direction=desc`,
+        method: 'GET',
+        headers: {
+          'user-agent': 'node.js',
+          authorization: `Bearer ${github.personal_access_token}`
+        }
+      },
+      (err, response, body) => {
+        if (err) {
+          return console.log(err);
+        }
+
+        if (response.statusCode !== 200) {
+          return res.status(404).json({ msg: 'No Github profile found' });
+        }
+
+        const ghRepos = map(JSON.parse(body), repo => pick(repo, ['id', 'name', 'html_url', 'description', 'fork', 'language', 'private']))
+
+        console.log(ghRepos)
+
+        return res.status(200).json(ghRepos);
+        // return res.status(200).json(JSON.parse(body));
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ msg: 'Server error' });
   }
 });
 

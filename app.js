@@ -7,7 +7,7 @@ const passport = require("passport");
 const cors = require("cors");
 
 const register = require("./routes/api/register");
-const user = require("./routes/api/user");
+// const user = require("./routes/api/user");
 const login = require("./routes/api/login");
 const profile = require("./routes/api/profile");
 const posts = require("./routes/api/posts");
@@ -25,7 +25,7 @@ app.use(cors());
 app.use("/join", register);
 app.use("/login", login);
 app.use("/profile", profile);
-app.use("/users", user);
+// app.use("/users", user);
 app.use("/posts", posts);
 app.use("/auth", auth);
 
